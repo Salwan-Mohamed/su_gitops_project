@@ -1,246 +1,385 @@
-# SU GitOps Platform
+# SU GitOps Platform Project
 
-## ��� Overview
+Enterprise GitOps implementation for Kubernetes infrastructure and application management using ArgoCD.
 
-Enterprise-grade GitOps implementation for Kubernetes platform management using ArgoCD, following best practices from "Implementing GitOps with Kubernetes".
+## ��� Project Overview
 
-**Status**: ✅ Phase 1 Foundation COMPLETE - Production Ready
+**Goal**: Implement a complete GitOps platform with DORA metrics tracking for enterprise Kubernetes deployment across development, staging, and production environments.
 
-### Infrastructure
-- **Kubernetes Cluster**: v1.30.10 HA Cluster
-  - 3 Master Nodes (Control Plane)
-  - 3 External etcd Nodes
-  - 4 Worker Nodes
-- **GitOps Tool**: ArgoCD (LoadBalancer: 10.1.5.184)
-- **Git Provider**: GitHub
-- **IaC Tool**: Kustomize
-- **Monitoring**: Prometheus + Grafana (Phase 2)
-
-### Target Teams
-1. **Platform Engineers** - Infrastructure & cluster management ✅
-2. **IS Team** - Application deployment (7-10 applications) ���
-3. **DevOps Engineers** - CI/CD pipelines ���
-4. **System Engineers** - VDI & domain controllers ���
-5. **Network Team** - Network automation ���
-6. **Helpdesk Team** - Support tools ���
+**Current Status**: Phase 2 Complete ✅
 
 ---
 
-## ��� Repository Structure
+## ��� Implementation Status
+
+### ✅ Phase 1: Foundation (Complete)
+- [x] ArgoCD installation and configuration
+- [x] App-of-Apps pattern implementation
+- [x] Project structure setup
+- [x] AppProject definitions (infrastructure, platform-services, applications)
+- [x] Namespace management
+- [x] GitOps workflow established
+
+### ✅ Phase 2: Platform Services (Complete)
+- [x] Prometheus metrics collection (20Gi storage)
+- [x] Grafana visualization dashboard (http://10.1.5.186)
+- [x] AlertManager alert routing (5Gi storage)
+- [x] Node Exporter on all 7 cluster nodes
+- [x] Kube State Metrics for Kubernetes objects
+- [x] Prometheus Operator for CRD management
+- [x] Storage configuration (nfs-client StorageClass)
+- [x] Node affinity rules (excluding worker04)
+- [x] 73 metrics targets monitored
+- [x] ArgoCD metrics collection configured
+
+### ��� Phase 3: Application Deployment (Upcoming)
+- [ ] DORA metrics dashboards
+- [ ] First IS team application deployment
+- [ ] CI/CD pipeline (GitHub Actions)
+- [ ] Application metrics collection
+- [ ] Alert rules and notifications
+- [ ] Multi-environment promotion (dev → staging → prod)
+
+---
+
+## ���️ Architecture
+
+### Cluster Configuration
+```
+Kubernetes Cluster (v1.x)
+├── Control Plane (3 nodes)
+│   ├── master01
+│   ├── master02
+│   └── master03
+├── etcd (3 external nodes)
+└── Worker Nodes (4 nodes)
+    ├── worker01 (workloads)
+    ├── worker02 (workloads)
+    ├── worker03 (workloads)
+    └── worker04 (backup - HDD storage, excluded from workloads)
+```
+
+### GitOps Structure
 ```
 su_gitops_project/
-├── bootstrap/              # ✅ ArgoCD bootstrap configuration
-│   ├── argocd/            # AppProjects
-│   ├── apps/              # Application definitions
-│   └── root-app.yaml      # Root Application
-│
-├── infrastructure/         # ✅ Core infrastructure (COMPLETE)
-│   ├── base/              # Namespaces, RBAC, network policies
-│   └── overlays/          # dev, stage, production
-│
-├── platform-services/      # ��� Platform services (IN PROGRESS)
-│   ├── base/
-│   │   ├── monitoring/    # Prometheus, Grafana (Phase 2)
-│   │   ├── logging/       # Loki (Phase 2)
-│   │   ├── ingress/       # Ingress controller (Phase 2)
-│   │   └── cert-manager/  # Certificates (Phase 2)
-│   └── overlays/
-│
-├── applications/           # ��� Team applications (Phase 3)
-│   └── is-team/           # IS Team apps (7-10)
-│
-├── ci-cd/                 # ��� CI/CD configurations (Phase 3)
-│   ├── github-actions/
-│   └── terraform/
-│
-├── teams/                 # ��� Team ArgoCD instances (Phase 4)
-│   └── [future multi-instance setup]
-│
-└── docs/                  # ✅ Documentation
-    ├── architecture.md
-    ├── onboarding.md
-    ├── troubleshooting.md
-    ├── implementation-log.md
-    └── PHASE1-COMPLETE.md
+├── bootstrap/
+│   ├── root-app.yaml              # ArgoCD App-of-Apps
+│   └── apps/
+│       ├── infrastructure.yaml    # AppProjects & namespaces
+│       ├── platform-services.yaml # Platform components
+│       ├── monitoring.yaml        # Prometheus stack (Helm)
+│       └── grafana.yaml          # Grafana visualization
+├── infrastructure/
+│   └── base/
+│       ├── projects/             # AppProject definitions
+│       │   ├── infrastructure.yaml
+│       │   ├── platform-services.yaml
+│       │   └── applications.yaml
+│       └── namespaces/
+│           ├── argocd.yaml
+│           └── platform-monitoring.yaml
+├── platform-services/
+│   └── base/
+│       ├── monitoring/           # Monitoring namespace
+│       └── grafana/             # Grafana deployment
+│           ├── deployment.yaml
+│           └── kustomization.yaml
+├── applications/                 # Application deployments (Phase 3)
+│   ├── dev/
+│   ├── staging/
+│   └── production/
+└── docs/
+    ├── PHASE1-COMPLETE.md
+    ├── PHASE2-COMPLETE.md
+    └── SESSION-SUMMARY.md
 ```
 
 ---
 
-## ��� Implementation Status
-
-### ✅ Phase 1: Foundation (COMPLETE)
-- [x] Repository structure setup
-- [x] Bootstrap ArgoCD configuration
-- [x] Root Application (App of Apps)
-- [x] Base infrastructure namespaces (5 created)
-- [x] RBAC policies (platform & IS team)
-- [x] Network policies (zero-trust)
-- [x] Resource quotas per environment
-- [x] GitOps workflow operational
-
-**See**: [Phase 1 Complete](docs/PHASE1-COMPLETE.md)
-
-### ��� Phase 2: Platform Services (NEXT)
-- [ ] Monitoring stack (Prometheus + Grafana)
-- [ ] Logging stack (Loki + Promtail)
-- [ ] DORA metrics dashboards
-- [ ] Ingress controller (NGINX/Traefik)
-- [ ] Certificate management (cert-manager)
-- [ ] Secret management (Sealed Secrets)
-
-### ��� Phase 3: Application Deployment
-- [ ] IS Team application templates
-- [ ] Dev/Stage/Prod promotion workflow
-- [ ] CI/CD pipeline integration (GitHub Actions)
-- [ ] DORA metrics collection
-
-### ��� Phase 4: Enterprise Scale
-- [ ] Multi-ArgoCD instances (Cockpit & Fleet)
-- [ ] Advanced RBAC and security policies
-- [ ] Disaster recovery procedures
-- [ ] Complete observability stack
-
----
-
-## ��� Quick Start
+## ��� Quick Start
 
 ### Prerequisites
-- kubectl v1.30+ configured
-- Git configured
-- Access to Kubernetes cluster
-- ArgoCD access
+- Kubernetes cluster (3 masters, 3 etcd, 4 workers)
+- ArgoCD installed
+- kubectl configured
+- GitHub repository access
+- MetalLB for LoadBalancer services
+- NFS provisioner or OpenEBS for storage
 
-### Access ArgoCD
+### Deploy the Platform
+
+1. **Bootstrap ArgoCD App-of-Apps**
+```bash
+kubectl apply -f bootstrap/root-app.yaml
+```
+
+2. **Verify Deployment**
+```bash
+# Check all ArgoCD applications
+kubectl get applications -n argocd
+
+# Expected output:
+# NAME                    SYNC STATUS   HEALTH STATUS
+# root-app                Synced        Healthy
+# infrastructure          Synced        Healthy
+# platform-services       Synced        Healthy
+# kube-prometheus-stack   Synced        Healthy
+# grafana                 Synced        Healthy
+```
+
+3. **Access Monitoring**
 ```bash
 # ArgoCD UI
 http://10.1.5.184
-
-# Login credentials
 Username: admin
-Password: [admin password]
+Password: <from secret>
+
+# Grafana UI
+http://10.1.5.186
+Username: admin
+Password: admin
 ```
 
-### Deploy Changes
+---
+
+## ��� Monitoring Stack
+
+### Components
+
+**Prometheus** - Metrics Collection
+- Storage: 20Gi NFS (nfs-client)
+- Retention: 15 days
+- Scrape interval: 30 seconds
+- Targets: 73 monitored endpoints
+
+**Grafana** - Visualization
+- LoadBalancer: http://10.1.5.186
+- Datasource: Prometheus (auto-configured)
+- Credentials: admin/admin
+
+**AlertManager** - Alert Routing
+- Storage: 5Gi NFS
+- Retention: 120 hours
+- Ready for Slack/Email notifications
+
+**Node Exporter** - Node Metrics
+- DaemonSet: 7/7 pods (all nodes)
+- Metrics: CPU, memory, disk, network
+
+**Kube State Metrics** - K8s Object Metrics
+- Monitors: Pods, Deployments, Services, etc.
+
+**Prometheus Operator** - CRD Management
+- Manages: ServiceMonitors, PodMonitors, PrometheusRules
+
+### Useful Queries
+```promql
+# Check all targets health
+up
+
+# Node memory available
+node_memory_MemAvailable_bytes
+
+# Pod status across cluster
+kube_pod_status_phase
+
+# ArgoCD application info
+argocd_app_info
+
+# Deployment replicas
+kube_deployment_status_replicas
+```
+
+---
+
+## ��� Configuration
+
+### Storage
+- **Default StorageClass**: `nfs-client`
+- **Access Mode**: ReadWriteOnce (RWO)
+- **Provisioner**: NFS Subdir External Provisioner
+
+### Node Affinity
+All platform services avoid `worker04`:
+```yaml
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: NotIn
+          values:
+          - worker04
+```
+
+**Reason**: worker04 reserved for backups (HDD storage, out of subnet range)
+
+### ArgoCD Sync Policy
+```yaml
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
+  syncOptions:
+    - CreateNamespace=true
+  retry:
+    limit: 3
+```
+
+---
+
+## ��� DORA Metrics (Coming in Phase 3)
+
+**Planned Tracking:**
+1. **Deployment Frequency** - How often we deploy
+2. **Lead Time for Changes** - Time from commit to production
+3. **Mean Time to Recovery (MTTR)** - Time to recover from failures
+4. **Change Failure Rate** - % of deployments causing failures
+
+**Data Sources:**
+- Git commits (GitHub API)
+- ArgoCD sync events
+- Prometheus pod restart metrics
+- Custom application metrics
+
+---
+
+## ��� Team Structure
+
+**Platform Engineering Team**
+- Infrastructure management
+- GitOps platform maintenance
+- Monitoring and observability
+
+**IS Team** (7-10 applications initially)
+- Application development
+- Application deployment via GitOps
+
+**Planned: DevOps Team**
+- CI/CD pipeline management
+- Deployment automation
+
+**Other Teams** (Future)
+- System Engineers
+- Network Automation
+- Helpdesk
+
+---
+
+## ��� Documentation
+
+- [Phase 1 Complete](docs/PHASE1-COMPLETE.md) - Foundation setup
+- [Phase 2 Complete](docs/PHASE2-COMPLETE.md) - Monitoring stack
+- [Session Summary](docs/SESSION-SUMMARY.md) - Latest session recap
+
+---
+
+## ��� Troubleshooting
+
+### Check ArgoCD Application Status
 ```bash
-# 1. Clone repository
-git clone https://github.com/Salwan-Mohamed/su_gitops_project.git
-cd su_gitops_project
-
-# 2. Make changes in appropriate overlay (dev/stage/production)
-# Edit files in infrastructure/overlays/dev/ or applications/
-
-# 3. Commit and push
-git add .
-git commit -m "feat: your change description"
-git push origin main
-
-# 4. ArgoCD syncs automatically (or manual sync via UI)
+kubectl get applications -n argocd
+kubectl describe application <app-name> -n argocd
 ```
 
-### Promote Changes
+### View Pod Logs
 ```bash
-# Promote from dev to stage
-cp infrastructure/overlays/dev/your-file.yaml infrastructure/overlays/stage/
-git add . && git commit -m "promote: dev to stage"
-git push origin main
-
-# Promote from stage to production
-cp infrastructure/overlays/stage/your-file.yaml infrastructure/overlays/production/
-git add . && git commit -m "promote: stage to production"
-git push origin main
+kubectl logs -n <namespace> <pod-name>
+kubectl logs -n <namespace> <pod-name> -c <container-name>
 ```
 
----
-
-## ��� Current Status
-
-### Namespaces (5)
+### Force ArgoCD Sync
 ```bash
-is-team-dev                Active   ✅
-is-team-stage              Active   ✅
-is-team-prod               Active   ✅
-platform-monitoring        Active   ✅ (ready for Phase 2)
-platform-logging           Active   ✅ (ready for Phase 2)
+# Via kubectl
+kubectl patch application <app-name> -n argocd \
+  --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+
+# Via ArgoCD UI
+# Click "SYNC" button on application
 ```
 
-### ArgoCD Applications (6)
+### Check Storage
 ```bash
-root-app              Synced    Healthy   ✅
-infrastructure        Synced    Healthy   ✅
-platform-services     Synced    Healthy   ✅
-[3 legacy apps]                           ✅
+# List PVCs
+kubectl get pvc -n platform-monitoring
+
+# Check StorageClasses
+kubectl get storageclass
+
+# View PV details
+kubectl get pv
 ```
 
-### RBAC
-- Platform team: Cluster-admin access ✅
-- IS team: Namespace-scoped access ✅
-- Network policies: Active ✅
-- Resource quotas: Enforced ✅
-
 ---
 
-## ��� Documentation
+## ��� Next Steps
 
-- [Architecture Overview](docs/architecture.md)
-- [Team Onboarding Guide](docs/onboarding.md)
-- [Troubleshooting Guide](docs/troubleshooting.md)
-- [Implementation Log](docs/implementation-log.md)
-- [Phase 1 Completion Report](docs/PHASE1-COMPLETE.md)
+### Phase 3 Priorities
+1. Import pre-built Kubernetes dashboards in Grafana
+2. Create custom DORA metrics dashboard
+3. Deploy first IS team application
+4. Implement GitHub Actions CI/CD pipeline
+5. Configure AlertManager notifications (Slack/Email)
+6. Set up application-specific ServiceMonitors
 
----
-
-## ��� Security & Compliance
-
-- ✅ GitOps: Git as single source of truth
-- ✅ RBAC: Role-based access control per team
-- ✅ Network Policies: Zero-trust network segmentation
-- ✅ Resource Quotas: Prevent resource exhaustion
-- ��� Secret Management: Sealed Secrets (Phase 2)
-- ��� Image Scanning: CI/CD integration (Phase 3)
-- ��� Policy Enforcement: OPA/Kyverno (Phase 4)
-
----
-
-## ��� DORA Metrics (Phase 2)
-
-Planned metrics tracking:
-- **Deployment Frequency**: Via ArgoCD sync history
-- **Lead Time for Changes**: Git commit to production
-- **Mean Time to Recovery**: Rollback time tracking  
-- **Change Failure Rate**: Failed vs successful deployments
-
----
-
-## ��� Contributing
-
-1. Create feature branch from `main`
-2. Make changes in appropriate overlay
-3. Test in `dev` environment
-4. Create Pull Request
-5. Promote: dev → stage → production
+### Future Enhancements
+- Multi-cluster deployment (dev/staging/prod clusters)
+- Disaster recovery automation
+- Cost monitoring and optimization
+- Security scanning integration
+- Backup automation for worker04
 
 ---
 
 ## ��� Support
 
-- **Platform Team**: Platform Engineering
-- **ArgoCD UI**: http://10.1.5.184
-- **Repository**: https://github.com/Salwan-Mohamed/su_gitops_project
-- **Documentation**: [docs/](docs/)
+**Repository**: https://github.com/Salwan-Mohamed/su_gitops_project
+
+**Access Points:**
+- ArgoCD UI: http://10.1.5.184
+- Grafana UI: http://10.1.5.186
+
+**Key Commands:**
+```bash
+# Check all applications
+kubectl get applications -n argocd
+
+# View monitoring pods
+kubectl get pods -n platform-monitoring
+
+# Port-forward Prometheus
+kubectl port-forward -n platform-monitoring \
+  prometheus-kube-prometheus-stack-prometheus-0 9090:9090
+```
 
 ---
 
-## ���️ Built With
+## ��� Success Metrics
 
-- [Kubernetes](https://kubernetes.io/) - Container orchestration (v1.30.10)
-- [ArgoCD](https://argo-cd.readthedocs.io/) - GitOps continuous delivery
-- [Kustomize](https://kustomize.io/) - Configuration management
-- [GitHub](https://github.com/) - Version control & GitOps source
-- [MetalLB](https://metallb.universe.tf/) - Load balancer
+- ✅ 7-node cluster fully monitored
+- ✅ 73 healthy metrics targets
+- ✅ GitOps workflow operational
+- ✅ All ArgoCD apps Synced/Healthy
+- ✅ 25Gi storage provisioned
+- ✅ Zero failing pods
+- ✅ Real-time metrics visualization
+
+---
+
+## ��� Achievements
+
+**Phase 2 Completion:**
+- Complete monitoring stack deployed
+- Enterprise-grade observability
+- Foundation for DORA metrics
+- Production-ready platform
+- Full GitOps automation
+
+**Next**: Phase 3 - Application deployment and DORA metrics dashboards
 
 ---
 
 **Last Updated**: November 23, 2025  
-**Phase**: 1 of 4 ✅ COMPLETE  
-**Maintained By**: Platform Engineering Team  
-**Lead Engineer**: Salwan Mohamed
+**Status**: Phase 2 Complete ✅  
+**Maintainer**: Platform Engineering Team
