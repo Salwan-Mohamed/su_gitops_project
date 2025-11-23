@@ -100,55 +100,9 @@ spec:
                       values:
                       - worker04
         
-        # Grafana - SIMPLIFIED CONFIG
+        # DISABLE Grafana - we deployed it separately
         grafana:
-          enabled: true
-          adminPassword: "admin"
-          
-          # Disable persistence
-          persistence:
-            enabled: false
-          
-          # DISABLE SIDECARS - they're causing the crash
-          sidecar:
-            dashboards:
-              enabled: false
-            datasources:
-              enabled: false
-          
-          resources:
-            requests:
-              cpu: 250m
-              memory: 512Mi
-            limits:
-              cpu: 500m
-              memory: 1Gi
-          
-          service:
-            type: LoadBalancer
-          
-          # Manual datasource configuration
-          datasources:
-            datasources.yaml:
-              apiVersion: 1
-              datasources:
-                - name: Prometheus
-                  type: prometheus
-                  url: http://kube-prometheus-stack-prometheus.platform-monitoring:9090
-                  access: proxy
-                  isDefault: true
-                  jsonData:
-                    timeInterval: 30s
-          
-          affinity:
-            nodeAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                nodeSelectorTerms:
-                - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: NotIn
-                    values:
-                    - worker04
+          enabled: false
         
         nodeExporter:
           enabled: true
