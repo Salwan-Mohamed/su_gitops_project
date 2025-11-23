@@ -18,11 +18,6 @@ spec:
     helm:
       releaseName: kube-prometheus-stack
       values: |
-        # Global node affinity - exclude worker04
-        global:
-          nodeSelector:
-            kubernetes.io/hostname: worker01
-        
         # Prometheus configuration
         prometheus:
           prometheusSpec:
@@ -111,15 +106,14 @@ spec:
                       values:
                       - worker04
         
-        # Grafana
+        # Grafana - DISABLED PERSISTENCE FOR NOW
         grafana:
           enabled: true
           adminPassword: "admin"
           
+          # Disable persistence temporarily
           persistence:
-            enabled: true
-            storageClassName: nfs-client
-            size: 5Gi
+            enabled: false
           
           resources:
             requests:
@@ -157,10 +151,9 @@ spec:
                     values:
                     - worker04
         
-        # Node Exporter - runs on ALL nodes including worker04
+        # Node Exporter - runs on ALL nodes
         nodeExporter:
           enabled: true
-          # No affinity - we want metrics from all nodes
         
         # Kube State Metrics
         kubeStateMetrics:
