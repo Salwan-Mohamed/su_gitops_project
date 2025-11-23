@@ -23,7 +23,6 @@ spec:
           prometheusSpec:
             retention: 15d
             
-            # Use NFS storage
             storageSpec:
               volumeClaimTemplate:
                 spec:
@@ -44,12 +43,10 @@ spec:
             scrapeInterval: 30s
             evaluationInterval: 30s
             
-            # Monitor all namespaces
             serviceMonitorSelectorNilUsesHelmValues: false
             podMonitorSelectorNilUsesHelmValues: false
             ruleSelectorNilUsesHelmValues: false
             
-            # Scrape ArgoCD metrics
             additionalScrapeConfigs:
               - job_name: 'argocd-metrics'
                 static_configs:
@@ -61,7 +58,6 @@ spec:
                 static_configs:
                   - targets: ['argocd-repo-server.argocd.svc.cluster.local:8084']
             
-            # Node affinity - avoid worker04
             affinity:
               nodeAffinity:
                 requiredDuringSchedulingIgnoredDuringExecution:
@@ -72,7 +68,6 @@ spec:
                       values:
                       - worker04
         
-        # AlertManager
         alertmanager:
           enabled: true
           alertmanagerSpec:
@@ -95,7 +90,6 @@ spec:
                 cpu: 200m
                 memory: 512Mi
             
-            # Node affinity - avoid worker04
             affinity:
               nodeAffinity:
                 requiredDuringSchedulingIgnoredDuringExecution:
@@ -106,14 +100,21 @@ spec:
                       values:
                       - worker04
         
-        # Grafana - DISABLED PERSISTENCE FOR NOW
+        # Grafana - SIMPLIFIED CONFIG
         grafana:
           enabled: true
           adminPassword: "admin"
           
-          # Disable persistence temporarily
+          # Disable persistence
           persistence:
             enabled: false
+          
+          # DISABLE SIDECARS - they're causing the crash
+          sidecar:
+            dashboards:
+              enabled: false
+            datasources:
+              enabled: false
           
           resources:
             requests:
@@ -123,11 +124,10 @@ spec:
               cpu: 500m
               memory: 1Gi
           
-          # Expose via LoadBalancer
           service:
             type: LoadBalancer
           
-          # Datasources
+          # Manual datasource configuration
           datasources:
             datasources.yaml:
               apiVersion: 1
@@ -140,7 +140,6 @@ spec:
                   jsonData:
                     timeInterval: 30s
           
-          # Node affinity - avoid worker04
           affinity:
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
@@ -151,15 +150,12 @@ spec:
                     values:
                     - worker04
         
-        # Node Exporter - runs on ALL nodes
         nodeExporter:
           enabled: true
         
-        # Kube State Metrics
         kubeStateMetrics:
           enabled: true
         
-        # Prometheus Operator
         prometheusOperator:
           resources:
             requests:
@@ -169,7 +165,6 @@ spec:
               cpu: 500m
               memory: 512Mi
           
-          # Node affinity - avoid worker04
           affinity:
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
