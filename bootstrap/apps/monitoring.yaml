@@ -12,25 +12,32 @@ spec:
   project: infrastructure
   
   source:
-    # Official Prometheus Community Helm Chart
     repoURL: https://prometheus-community.github.io/helm-charts
     chart: kube-prometheus-stack
     targetRevision: 55.5.0
     helm:
       releaseName: kube-prometheus-stack
       values: |
+        # Global node affinity - exclude worker04
+        global:
+          nodeSelector:
+            kubernetes.io/hostname: worker01
+        
         # Prometheus configuration
         prometheus:
           prometheusSpec:
             retention: 15d
-            retentionSize: "50GB"
+            
+            # Use NFS storage
             storageSpec:
               volumeClaimTemplate:
                 spec:
+                  storageClassName: nfs-client
                   accessModes: ["ReadWriteOnce"]
                   resources:
                     requests:
-                      storage: 50Gi
+                      storage: 20Gi
+            
             resources:
               requests:
                 cpu: 500m
@@ -38,6 +45,7 @@ spec:
               limits:
                 cpu: 2000m
                 memory: 4Gi
+            
             scrapeInterval: 30s
             evaluationInterval: 30s
             
@@ -57,19 +65,33 @@ spec:
               - job_name: 'argocd-repo-server-metrics'
                 static_configs:
                   - targets: ['argocd-repo-server.argocd.svc.cluster.local:8084']
+            
+            # Node affinity - avoid worker04
+            affinity:
+              nodeAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  nodeSelectorTerms:
+                  - matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: NotIn
+                      values:
+                      - worker04
         
         # AlertManager
         alertmanager:
           enabled: true
           alertmanagerSpec:
             retention: 120h
+            
             storage:
               volumeClaimTemplate:
                 spec:
+                  storageClassName: nfs-client
                   accessModes: ["ReadWriteOnce"]
                   resources:
                     requests:
-                      storage: 10Gi
+                      storage: 5Gi
+            
             resources:
               requests:
                 cpu: 100m
@@ -77,14 +99,28 @@ spec:
               limits:
                 cpu: 200m
                 memory: 512Mi
+            
+            # Node affinity - avoid worker04
+            affinity:
+              nodeAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  nodeSelectorTerms:
+                  - matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: NotIn
+                      values:
+                      - worker04
         
         # Grafana
         grafana:
           enabled: true
           adminPassword: "admin"
+          
           persistence:
             enabled: true
-            size: 10Gi
+            storageClassName: nfs-client
+            size: 5Gi
+          
           resources:
             requests:
               cpu: 250m
@@ -109,14 +145,28 @@ spec:
                   isDefault: true
                   jsonData:
                     timeInterval: 30s
+          
+          # Node affinity - avoid worker04
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: NotIn
+                    values:
+                    - worker04
         
-        # Enable exporters
+        # Node Exporter - runs on ALL nodes including worker04
         nodeExporter:
           enabled: true
+          # No affinity - we want metrics from all nodes
         
+        # Kube State Metrics
         kubeStateMetrics:
           enabled: true
         
+        # Prometheus Operator
         prometheusOperator:
           resources:
             requests:
@@ -125,6 +175,17 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
+          
+          # Node affinity - avoid worker04
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: NotIn
+                    values:
+                    - worker04
   
   destination:
     server: https://kubernetes.default.svc
