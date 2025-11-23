@@ -15,9 +15,6 @@ spec:
     repoURL: https://github.com/Salwan-Mohamed/su_gitops_project.git
     targetRevision: main
     path: infrastructure/overlays/dev
-    # Add kustomize build options
-    kustomize:
-      version: v5.0.0
   
   destination:
     server: https://kubernetes.default.svc
