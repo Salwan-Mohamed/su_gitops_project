@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: prod-quota
+  namespace: is-team-prod
+spec:
+  hard:
+    requests.cpu: "30"
+    requests.memory: 60Gi
+    limits.cpu: "60"
+    limits.memory: 120Gi
+    persistentvolumeclaims: "15"
+    services.loadbalancers: "5"

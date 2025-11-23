@@ -1,0 +1,74 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+  labels:
+    environment: dev
+    managed-by: gitops
+    team: platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: stage
+  labels:
+    environment: stage
+    managed-by: gitops
+    team: platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod
+  labels:
+    environment: production
+    managed-by: gitops
+    team: platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: is-team-dev
+  labels:
+    environment: dev
+    managed-by: gitops
+    team: is-team
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: is-team-stage
+  labels:
+    environment: stage
+    managed-by: gitops
+    team: is-team
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: is-team-prod
+  labels:
+    environment: production
+    managed-by: gitops
+    team: is-team
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-monitoring
+  labels:
+    environment: shared
+    managed-by: gitops
+    team: platform
+    component: monitoring
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-logging
+  labels:
+    environment: shared
+    managed-by: gitops
+    team: platform
+    component: logging
