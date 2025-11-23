@@ -1,11 +1,3 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: platform-monitoring
-  labels:
-    managed-by: gitops
-    component: monitoring
----
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -23,7 +15,7 @@ spec:
     # Official Prometheus Community Helm Chart
     repoURL: https://prometheus-community.github.io/helm-charts
     chart: kube-prometheus-stack
-    targetRevision: 55.5.0  # Stable version
+    targetRevision: 55.5.0
     helm:
       releaseName: kube-prometheus-stack
       values: |
@@ -46,16 +38,15 @@ spec:
               limits:
                 cpu: 2000m
                 memory: 4Gi
-            # Scrape interval
             scrapeInterval: 30s
             evaluationInterval: 30s
             
-            # ServiceMonitor selector - monitor all namespaces
+            # Monitor all namespaces
             serviceMonitorSelectorNilUsesHelmValues: false
             podMonitorSelectorNilUsesHelmValues: false
             ruleSelectorNilUsesHelmValues: false
             
-            # Additional scrape configs for ArgoCD metrics
+            # Scrape ArgoCD metrics
             additionalScrapeConfigs:
               - job_name: 'argocd-metrics'
                 static_configs:
@@ -67,7 +58,7 @@ spec:
                 static_configs:
                   - targets: ['argocd-repo-server.argocd.svc.cluster.local:8084']
         
-        # AlertManager configuration
+        # AlertManager
         alertmanager:
           enabled: true
           alertmanagerSpec:
@@ -87,10 +78,10 @@ spec:
                 cpu: 200m
                 memory: 512Mi
         
-        # Grafana configuration
+        # Grafana
         grafana:
           enabled: true
-          adminPassword: "admin"  # Change this in production!
+          adminPassword: "admin"
           persistence:
             enabled: true
             size: 10Gi
@@ -102,43 +93,11 @@ spec:
               cpu: 500m
               memory: 1Gi
           
-          # Grafana service - expose via LoadBalancer
+          # Expose via LoadBalancer
           service:
             type: LoadBalancer
-            annotations:
-              metallb.universe.tf/address-pool: default
           
-          # Additional dashboards
-          dashboardProviders:
-            dashboardproviders.yaml:
-              apiVersion: 1
-              providers:
-                - name: 'default'
-                  orgId: 1
-                  folder: ''
-                  type: file
-                  disableDeletion: false
-                  editable: true
-                  options:
-                    path: /var/lib/grafana/dashboards/default
-                - name: 'argocd'
-                  orgId: 1
-                  folder: 'ArgoCD'
-                  type: file
-                  disableDeletion: false
-                  editable: true
-                  options:
-                    path: /var/lib/grafana/dashboards/argocd
-                - name: 'dora'
-                  orgId: 1
-                  folder: 'DORA Metrics'
-                  type: file
-                  disableDeletion: false
-                  editable: true
-                  options:
-                    path: /var/lib/grafana/dashboards/dora
-          
-          # Pre-configure datasources
+          # Datasources
           datasources:
             datasources.yaml:
               apiVersion: 1
@@ -151,15 +110,13 @@ spec:
                   jsonData:
                     timeInterval: 30s
         
-        # Node Exporter - for node-level metrics
+        # Enable exporters
         nodeExporter:
           enabled: true
         
-        # Kube State Metrics - for Kubernetes object metrics
         kubeStateMetrics:
           enabled: true
         
-        # Prometheus Operator
         prometheusOperator:
           resources:
             requests:
@@ -179,7 +136,7 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - ServerSideApply=true  # Required for CRDs
+      - ServerSideApply=true
     retry:
       limit: 5
       backoff:
@@ -187,7 +144,6 @@ spec:
         factor: 2
         maxDuration: 3m
   
-  # Ignore differences in generated secrets
   ignoreDifferences:
     - group: apps
       kind: StatefulSet

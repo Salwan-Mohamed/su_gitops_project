@@ -6,6 +6,7 @@ namespace: argocd
 resources:
   - infrastructure.yaml
   - platform-services.yaml
+  - monitoring.yaml
 
 commonLabels:
   managed-by: gitops
