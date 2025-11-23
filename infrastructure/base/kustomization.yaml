@@ -8,6 +8,8 @@ resources:
   - network-policies/default-deny.yaml
   - network-policies/allow-same-namespace.yaml
 
-commonLabels:
-  managed-by: gitops
-  component: infrastructure
+# Use 'labels' instead of deprecated 'commonLabels'
+labels:
+  - pairs:
+      managed-by: gitops
+      component: infrastructure
