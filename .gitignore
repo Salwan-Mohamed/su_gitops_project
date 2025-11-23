@@ -1,0 +1,44 @@
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets (NEVER commit secrets!)
+*.key
+*.pem
+*.crt
+secrets/
+*.secret.yaml
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+*.tfvars
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+
+# Build outputs
+dist/
+build/
+target/
+
+# Test
+coverage/
+.pytest_cache/
+
+# Do NOT ignore example secrets or sealed secrets
+!*-sealed.yaml
+!*.example.yaml

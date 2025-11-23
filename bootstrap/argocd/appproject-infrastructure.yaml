@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infrastructure
+  namespace: argocd
+  labels:
+    managed-by: gitops
+spec:
+  description: Infrastructure and platform services
+  
+  # Source repositories
+  sourceRepos:
+    - 'https://github.com/Salwan-Mohamed/su_gitops_project.git'
+    - '*'  # Allow all repos for Helm charts
+  
+  # Destination clusters and namespaces
+  destinations:
+    - namespace: '*'
+      server: 'https://kubernetes.default.svc'
+  
+  # Cluster resources that can be managed
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  
+  # Namespace resources that can be managed
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  
+  # Roles for RBAC
+  roles:
+    - name: platform-admin
+      description: Platform engineering team - full access
+      policies:
+        - p, proj:infrastructure:platform-admin, applications, *, infrastructure/*, allow
+      groups:
+        - platform-engineers
+    
+    - name: platform-viewer
+      description: Read-only access to infrastructure
+      policies:
+        - p, proj:infrastructure:platform-viewer, applications, get, infrastructure/*, allow
+      groups:
+        - developers
