@@ -1,0 +1,314 @@
+{
+  "dashboard": {
+    "title": "DORA Metrics - GitOps Platform",
+    "tags": ["dora", "devops", "gitops"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Deployment Frequency",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(rate(argocd_app_sync_total{phase=\"Succeeded\"}[1h])) * 3600",
+            "legendFormat": "Deployments per hour",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Deployments/hour"},
+          {"format": "short"}
+        ],
+        "xaxis": {"mode": "time"},
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "pointradius": 5,
+        "points": false,
+        "bars": false,
+        "stack": false,
+        "percentage": false,
+        "legend": {"show": true, "alignAsTable": true, "avg": true, "current": true, "max": true, "min": false, "rightSide": false, "total": false, "values": true},
+        "nullPointMode": "null",
+        "thresholds": [],
+        "timeFrom": null,
+        "timeShift": null,
+        "tooltip": {"shared": true, "sort": 0, "value_type": "individual"},
+        "aliasColors": {},
+        "seriesOverrides": [],
+        "links": []
+      },
+      {
+        "id": 2,
+        "title": "Deployment Frequency - DORA Level",
+        "type": "singlestat",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(increase(argocd_app_sync_total{phase=\"Succeeded\"}[24h]))",
+            "refId": "A"
+          }
+        ],
+        "format": "none",
+        "prefix": "",
+        "postfix": " deploys/day",
+        "nullText": null,
+        "valueMaps": [
+          {"value": "null", "op": "=", "text": "N/A"}
+        ],
+        "mappingTypes": [
+          {"name": "value to text", "value": 1},
+          {"name": "range to text", "value": 2}
+        ],
+        "rangeMaps": [
+          {"from": "0", "to": "0.03", "text": "Low"},
+          {"from": "0.03", "to": "1", "text": "Medium"},
+          {"from": "1", "to": "7", "text": "High"},
+          {"from": "7", "to": "1000", "text": "Elite"}
+        ],
+        "mappingType": 2,
+        "nullPointMode": "connected",
+        "valueName": "current",
+        "prefixFontSize": "50%",
+        "valueFontSize": "80%",
+        "postfixFontSize": "50%",
+        "thresholds": "0.03,1,7",
+        "colorBackground": true,
+        "colorValue": false,
+        "colors": ["#d44a3a", "#e0b400", "#629e51", "#299c46"],
+        "sparkline": {"show": false, "full": false, "lineColor": "rgb(31, 120, 193)", "fillColor": "rgba(31, 118, 189, 0.18)"},
+        "gauge": {"show": false, "minValue": 0, "maxValue": 100, "thresholdMarkers": true, "thresholdLabels": false}
+      },
+      {
+        "id": 3,
+        "title": "Change Failure Rate",
+        "type": "singlestat",
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(increase(argocd_app_sync_total{phase=\"Failed\"}[24h])) / sum(increase(argocd_app_sync_total[24h])) * 100",
+            "refId": "A"
+          }
+        ],
+        "format": "percent",
+        "prefix": "",
+        "postfix": "",
+        "nullText": "0",
+        "valueMaps": [
+          {"value": "null", "op": "=", "text": "0%"}
+        ],
+        "mappingTypes": [
+          {"name": "value to text", "value": 1},
+          {"name": "range to text", "value": 2}
+        ],
+        "rangeMaps": [
+          {"from": "0", "to": "15", "text": "Elite"},
+          {"from": "15", "to": "30", "text": "High"},
+          {"from": "30", "to": "45", "text": "Medium"},
+          {"from": "45", "to": "100", "text": "Low"}
+        ],
+        "mappingType": 2,
+        "nullPointMode": "connected",
+        "valueName": "current",
+        "prefixFontSize": "50%",
+        "valueFontSize": "80%",
+        "postfixFontSize": "50%",
+        "thresholds": "15,30,45",
+        "colorBackground": true,
+        "colorValue": false,
+        "colors": ["#299c46", "#629e51", "#e0b400", "#d44a3a"],
+        "sparkline": {"show": false},
+        "gauge": {"show": false}
+      },
+      {
+        "id": 4,
+        "title": "Mean Time to Recovery (MTTR)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "targets": [
+          {
+            "expr": "avg(rate(kube_pod_container_status_restarts_total[5m])) * 300",
+            "legendFormat": "Average recovery time (seconds)",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Recovery Time"},
+          {"format": "short"}
+        ],
+        "xaxis": {"mode": "time"},
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "pointradius": 5,
+        "points": false,
+        "bars": false,
+        "stack": false,
+        "percentage": false,
+        "legend": {"show": true, "alignAsTable": true, "avg": true, "current": true, "max": true, "min": false},
+        "nullPointMode": "null",
+        "thresholds": [
+          {"value": 3600, "colorMode": "critical", "op": "gt", "fill": true, "line": true}
+        ],
+        "tooltip": {"shared": true, "sort": 0, "value_type": "individual"}
+      },
+      {
+        "id": 5,
+        "title": "Applications by Sync Status",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "targets": [
+          {
+            "expr": "count(argocd_app_info{sync_status=\"Synced\"})",
+            "legendFormat": "Synced",
+            "refId": "A"
+          },
+          {
+            "expr": "count(argocd_app_info{sync_status=\"OutOfSync\"})",
+            "legendFormat": "OutOfSync",
+            "refId": "B"
+          },
+          {
+            "expr": "count(argocd_app_info{sync_status=\"Unknown\"})",
+            "legendFormat": "Unknown",
+            "refId": "C"
+          }
+        ],
+        "pieType": "pie",
+        "legend": {"show": true, "values": true},
+        "legendType": "Right side"
+      },
+      {
+        "id": 6,
+        "title": "Deployment Success Rate (24h)",
+        "type": "gauge",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "targets": [
+          {
+            "expr": "(sum(increase(argocd_app_sync_total{phase=\"Succeeded\"}[24h])) / sum(increase(argocd_app_sync_total[24h]))) * 100",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        },
+        "pluginVersion": "7.0.0",
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 70, "color": "yellow"},
+                {"value": 85, "color": "green"}
+              ]
+            },
+            "color": {"mode": "thresholds"},
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "Pod Restart Events (Indicator of Issues)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+        "targets": [
+          {
+            "expr": "sum(rate(kube_pod_container_status_restarts_total[5m]))",
+            "legendFormat": "Pod restarts per second",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Restarts/sec"},
+          {"format": "short"}
+        ],
+        "xaxis": {"mode": "time"},
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {"params": [0.1], "type": "gt"},
+              "operator": {"type": "and"},
+              "query": {"params": ["A", "5m", "now"]},
+              "reducer": {"params": [], "type": "avg"},
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "frequency": "60s",
+          "handler": 1,
+          "name": "High Pod Restart Rate",
+          "noDataState": "no_data",
+          "notifications": []
+        },
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2
+      },
+      {
+        "id": 8,
+        "title": "ArgoCD Sync Activity Timeline",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 24},
+        "targets": [
+          {
+            "expr": "argocd_app_info",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "styles": [
+          {
+            "alias": "Application",
+            "pattern": "name",
+            "type": "string"
+          },
+          {
+            "alias": "Sync Status",
+            "pattern": "sync_status",
+            "type": "string",
+            "colorMode": "cell",
+            "colors": ["rgba(245, 54, 54, 0.9)", "rgba(237, 129, 40, 0.89)", "rgba(50, 172, 45, 0.97)"],
+            "thresholds": ["OutOfSync", "Unknown"]
+          },
+          {
+            "alias": "Health",
+            "pattern": "health_status",
+            "type": "string",
+            "colorMode": "cell",
+            "colors": ["rgba(245, 54, 54, 0.9)", "rgba(237, 129, 40, 0.89)", "rgba(50, 172, 45, 0.97)"],
+            "thresholds": ["Degraded", "Progressing"]
+          }
+        ],
+        "transform": "table",
+        "pageSize": null,
+        "showHeader": true,
+        "columns": [],
+        "scroll": true,
+        "fontSize": "100%",
+        "sort": {"col": 0, "desc": true}
+      }
+    ],
+    "time": {"from": "now-24h", "to": "now"},
+    "timepicker": {
+      "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"],
+      "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]
+    },
+    "templating": {"list": []},
+    "annotations": {"list": []},
+    "links": [],
+    "gnetId": null
+  },
+  "overwrite": true,
+  "folderId": 0
+}

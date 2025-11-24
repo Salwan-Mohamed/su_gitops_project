@@ -16,7 +16,6 @@ spec:
       labels:
         app: grafana
     spec:
-      # Avoid worker04
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -52,6 +51,10 @@ spec:
         volumeMounts:
         - name: datasources
           mountPath: /etc/grafana/provisioning/datasources
+        - name: dashboards-provisioning
+          mountPath: /etc/grafana/provisioning/dashboards
+        - name: dashboards
+          mountPath: /var/lib/grafana/dashboards
         
         livenessProbe:
           httpGet:
@@ -72,6 +75,12 @@ spec:
       - name: datasources
         configMap:
           name: grafana-datasources
+      - name: dashboards-provisioning
+        configMap:
+          name: grafana-dashboards-provisioning
+      - name: dashboards
+        configMap:
+          name: grafana-dora-dashboard
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -93,6 +102,412 @@ data:
       editable: true
       jsonData:
         timeInterval: 30s
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-provisioning
+  namespace: platform-monitoring
+  labels:
+    app: grafana
+    managed-by: gitops
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: 'GitOps'
+      type: file
+      disableDeletion: false
+      updateIntervalSeconds: 10
+      allowUiUpdates: true
+      options:
+        path: /var/lib/grafana/dashboards
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dora-dashboard
+  namespace: platform-monitoring
+  labels:
+    app: grafana
+    managed-by: gitops
+data:
+  dora-metrics.json: |
+    {
+      "dashboard": {
+        "title": "DORA Metrics - GitOps Platform",
+        "tags": ["dora", "devops", "gitops"],
+        "timezone": "browser",
+        "schemaVersion": 16,
+        "version": 1,
+        "refresh": "30s",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Deployment Frequency (Last 24h)",
+            "type": "stat",
+            "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0},
+            "targets": [
+              {
+                "expr": "sum(increase(argocd_app_sync_total{phase=\"Succeeded\"}[24h]))",
+                "refId": "A"
+              }
+            ],
+            "options": {
+              "graphMode": "area",
+              "colorMode": "background",
+              "textMode": "value_and_name"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {"value": 0, "color": "red"},
+                    {"value": 1, "color": "yellow"},
+                    {"value": 7, "color": "green"},
+                    {"value": 30, "color": "blue"}
+                  ]
+                },
+                "unit": "short",
+                "displayName": "Deployments/Day"
+              }
+            }
+          },
+          {
+            "id": 2,
+            "title": "Change Failure Rate",
+            "type": "stat",
+            "gridPos": {"h": 6, "w": 6, "x": 6, "y": 0},
+            "targets": [
+              {
+                "expr": "(sum(increase(argocd_app_sync_total{phase=\"Failed\"}[24h])) / sum(increase(argocd_app_sync_total[24h])) * 100) or vector(0)",
+                "refId": "A"
+              }
+            ],
+            "options": {
+              "graphMode": "area",
+              "colorMode": "background",
+              "textMode": "value_and_name"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {"value": 0, "color": "green"},
+                    {"value": 15, "color": "yellow"},
+                    {"value": 30, "color": "orange"},
+                    {"value": 45, "color": "red"}
+                  ]
+                },
+                "unit": "percent",
+                "displayName": "Failure Rate",
+                "max": 100,
+                "min": 0
+              }
+            }
+          },
+          {
+            "id": 3,
+            "title": "Active Applications",
+            "type": "stat",
+            "gridPos": {"h": 6, "w": 6, "x": 12, "y": 0},
+            "targets": [
+              {
+                "expr": "count(argocd_app_info)",
+                "refId": "A"
+              }
+            ],
+            "options": {
+              "graphMode": "none",
+              "colorMode": "value",
+              "textMode": "value_and_name"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {"value": 0, "color": "blue"}
+                  ]
+                },
+                "unit": "short",
+                "displayName": "Total Apps"
+              }
+            }
+          },
+          {
+            "id": 4,
+            "title": "Synced Applications",
+            "type": "stat",
+            "gridPos": {"h": 6, "w": 6, "x": 18, "y": 0},
+            "targets": [
+              {
+                "expr": "count(argocd_app_info{sync_status=\"Synced\"})",
+                "refId": "A"
+              }
+            ],
+            "options": {
+              "graphMode": "none",
+              "colorMode": "value",
+              "textMode": "value_and_name"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {"value": 0, "color": "green"}
+                  ]
+                },
+                "unit": "short",
+                "displayName": "Synced"
+              }
+            }
+          },
+          {
+            "id": 5,
+            "title": "Deployment Frequency Over Time",
+            "type": "timeseries",
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6},
+            "targets": [
+              {
+                "expr": "sum(rate(argocd_app_sync_total{phase=\"Succeeded\"}[1h])) * 3600",
+                "legendFormat": "Successful Deployments/hour",
+                "refId": "A"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "custom": {
+                  "drawStyle": "line",
+                  "lineInterpolation": "smooth",
+                  "fillOpacity": 20,
+                  "showPoints": "auto"
+                },
+                "color": {"mode": "palette-classic"},
+                "unit": "short",
+                "displayName": "Deployments/hour"
+              }
+            }
+          },
+          {
+            "id": 6,
+            "title": "Application Sync Status",
+            "type": "piechart",
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6},
+            "targets": [
+              {
+                "expr": "count(argocd_app_info{sync_status=\"Synced\"})",
+                "legendFormat": "Synced",
+                "refId": "A"
+              },
+              {
+                "expr": "count(argocd_app_info{sync_status=\"OutOfSync\"})",
+                "legendFormat": "OutOfSync",
+                "refId": "B"
+              }
+            ],
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "right"
+              },
+              "pieType": "pie",
+              "displayLabels": ["percent"]
+            },
+            "fieldConfig": {
+              "defaults": {
+                "color": {"mode": "palette-classic"}
+              }
+            }
+          },
+          {
+            "id": 7,
+            "title": "Pod Restart Rate (MTTR Indicator)",
+            "type": "timeseries",
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14},
+            "targets": [
+              {
+                "expr": "sum(rate(kube_pod_container_status_restarts_total[5m]))",
+                "legendFormat": "Pod Restarts/sec",
+                "refId": "A"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "custom": {
+                  "drawStyle": "line",
+                  "lineInterpolation": "smooth",
+                  "fillOpacity": 10
+                },
+                "color": {"mode": "palette-classic"},
+                "unit": "short",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {"value": 0, "color": "green"},
+                    {"value": 0.01, "color": "yellow"},
+                    {"value": 0.05, "color": "red"}
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": 8,
+            "title": "Deployment Success vs Failure",
+            "type": "timeseries",
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 14},
+            "targets": [
+              {
+                "expr": "sum(rate(argocd_app_sync_total{phase=\"Succeeded\"}[5m]))",
+                "legendFormat": "Successful",
+                "refId": "A"
+              },
+              {
+                "expr": "sum(rate(argocd_app_sync_total{phase=\"Failed\"}[5m]))",
+                "legendFormat": "Failed",
+                "refId": "B"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "custom": {
+                  "drawStyle": "bars",
+                  "fillOpacity": 80,
+                  "stacking": {"mode": "normal"}
+                },
+                "color": {"mode": "palette-classic"}
+              },
+              "overrides": [
+                {
+                  "matcher": {"id": "byName", "options": "Successful"},
+                  "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "green"}}]
+                },
+                {
+                  "matcher": {"id": "byName", "options": "Failed"},
+                  "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "red"}}]
+                }
+              ]
+            }
+          },
+          {
+            "id": 9,
+            "title": "Applications by Health Status",
+            "type": "table",
+            "gridPos": {"h": 8, "w": 24, "x": 0, "y": 22},
+            "targets": [
+              {
+                "expr": "argocd_app_info",
+                "format": "table",
+                "instant": true,
+                "refId": "A"
+              }
+            ],
+            "transformations": [
+              {
+                "id": "organize",
+                "options": {
+                  "excludeByName": {
+                    "Time": true,
+                    "Value": true,
+                    "__name__": true,
+                    "instance": true,
+                    "job": true,
+                    "namespace": true,
+                    "pod": true,
+                    "service": true
+                  },
+                  "indexByName": {
+                    "name": 0,
+                    "dest_namespace": 1,
+                    "sync_status": 2,
+                    "health_status": 3,
+                    "autosync_enabled": 4
+                  },
+                  "renameByName": {
+                    "name": "Application",
+                    "dest_namespace": "Namespace",
+                    "sync_status": "Sync Status",
+                    "health_status": "Health Status",
+                    "autosync_enabled": "Auto-Sync"
+                  }
+                }
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {},
+              "overrides": [
+                {
+                  "matcher": {"id": "byName", "options": "Sync Status"},
+                  "properties": [
+                    {
+                      "id": "custom.cellOptions",
+                      "value": {
+                        "type": "color-background",
+                        "mode": "basic"
+                      }
+                    },
+                    {
+                      "id": "mappings",
+                      "value": [
+                        {"type": "value", "value": "Synced", "color": "green"},
+                        {"type": "value", "value": "OutOfSync", "color": "red"}
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "matcher": {"id": "byName", "options": "Health Status"},
+                  "properties": [
+                    {
+                      "id": "custom.cellOptions",
+                      "value": {
+                        "type": "color-background",
+                        "mode": "basic"
+                      }
+                    },
+                    {
+                      "id": "mappings",
+                      "value": [
+                        {"type": "value", "value": "Healthy", "color": "green"},
+                        {"type": "value", "value": "Progressing", "color": "yellow"},
+                        {"type": "value", "value": "Degraded", "color": "orange"},
+                        {"type": "value", "value": "Missing", "color": "red"}
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "time": {"from": "now-24h", "to": "now"},
+        "timepicker": {
+          "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h"],
+          "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]
+        },
+        "templating": {"list": []},
+        "annotations": {"list": []},
+        "editable": true,
+        "fiscalYearStartMonth": 0,
+        "graphTooltip": 1,
+        "links": [],
+        "liveNow": false,
+        "panels": [],
+        "style": "dark",
+        "uid": "dora-metrics-gitops"
+      },
+      "overwrite": true
+    }
 ---
 apiVersion: v1
 kind: Service
