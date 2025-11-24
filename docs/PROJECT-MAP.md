@@ -4,7 +4,7 @@
 
 ---
 
-## í·ºï¸ The Big Picture
+## ï¿½ï¿½ï¿½ï¸ The Big Picture
 ```
 GitHub Repository (Source of Truth)
         â†“
@@ -20,7 +20,7 @@ GitHub Repository (Source of Truth)
 
 ---
 
-## í³¦ Phase 1: Foundation (COMPLETE)
+## ï¿½ï¿½ï¿½ Phase 1: Foundation (COMPLETE)
 
 ### What We Built
 
@@ -28,7 +28,7 @@ GitHub Repository (Source of Truth)
 - **What**: GitOps deployment tool
 - **Where**: `argocd` namespace
 - **Purpose**: Automatically deploy changes from Git to Kubernetes
-- **Access**: http://10.1.5.184
+- **Access**: http://10.1.5.186
 - **Key Feature**: Watches Git repo, applies changes automatically
 
 #### 2. **Root Application (App-of-Apps)**
@@ -75,7 +75,7 @@ su_gitops_project/
 
 ---
 
-## í³Š Phase 2: Monitoring Platform (COMPLETE)
+## ï¿½ï¿½ï¿½ Phase 2: Monitoring Platform (COMPLETE)
 
 ### What We Built
 
@@ -162,7 +162,7 @@ AlertManager (sends alerts if problems)
 
 ---
 
-## í¿—ï¸ Architecture Decisions Made
+## ï¿½ï¿½ï¿½ï¸ Architecture Decisions Made
 
 ### Storage Strategy
 - **Choice**: NFS (nfs-client StorageClass)
@@ -198,7 +198,7 @@ AlertManager (sends alerts if problems)
 
 ---
 
-## í³‚ Every File We Created
+## ï¿½ï¿½ï¿½ Every File We Created
 
 ### Bootstrap Layer (Entry Point)
 ```
@@ -255,7 +255,7 @@ docs/
 
 ---
 
-## í¾¯ What Each Component Does (Simple Explanation)
+## ï¿½ï¿½ï¿½ What Each Component Does (Simple Explanation)
 
 ### ArgoCD
 **Like**: A robot that watches your Git repo  
@@ -289,7 +289,7 @@ docs/
 
 ---
 
-## í´¢ By The Numbers (Current State)
+## ï¿½ï¿½ï¿½ By The Numbers (Current State)
 
 ### Cluster
 - **Nodes**: 7 total (3 masters, 4 workers)
@@ -321,7 +321,7 @@ docs/
 
 ---
 
-## íº€ Phase 3: Applications & DORA Metrics (NEXT)
+## ï¿½ï¿½ï¿½ Phase 3: Applications & DORA Metrics (NEXT)
 
 ### What We'll Build
 
@@ -491,7 +491,7 @@ spec:
 
 ---
 
-## í³‹ Phase 3 Step-by-Step Plan
+## ï¿½ï¿½ï¿½ Phase 3 Step-by-Step Plan
 
 ### Week 1: Dashboards & First App
 
@@ -543,7 +543,7 @@ spec:
 
 ---
 
-## í¾“ Key Concepts to Understand
+## ï¿½ï¿½ï¿½ Key Concepts to Understand
 
 ### GitOps Workflow
 ```
@@ -600,7 +600,7 @@ AlertManager sends notifications
 
 ---
 
-## í¾¯ Success Metrics
+## ï¿½ï¿½ï¿½ Success Metrics
 
 ### Phase 1 âœ…
 - [x] ArgoCD deployed and accessible
@@ -615,7 +615,7 @@ AlertManager sends notifications
 - [x] Storage configured
 - [x] Zero failing pods
 
-### Phase 3 íº§
+### Phase 3 ï¿½ï¿½ï¿½
 - [ ] DORA dashboards showing data
 - [ ] First application deployed
 - [ ] CI/CD pipeline operational
@@ -624,7 +624,7 @@ AlertManager sends notifications
 
 ---
 
-## í·ºï¸ The Journey So Far
+## ï¿½ï¿½ï¿½ï¸ The Journey So Far
 ```
 Week 1: Foundation
 â”œâ”€â”€ Installed ArgoCD âœ…
@@ -648,7 +648,7 @@ Next: Applications & DORA Metrics
 
 ---
 
-## í²¡ Why We Built It This Way
+## ï¿½ï¿½ï¿½ Why We Built It This Way
 
 ### Foundation First (Phase 1)
 **Why**: Can't deploy apps without the deployment mechanism (ArgoCD)
@@ -668,7 +668,7 @@ Next: Applications & DORA Metrics
 
 ---
 
-## í¾‰ What You Have Now
+## ï¿½ï¿½ï¿½ What You Have Now
 
 ### Working GitOps Platform
 - âœ… Automatic deployments from Git
@@ -693,7 +693,7 @@ Next: Applications & DORA Metrics
 
 ---
 
-## í³– How to Use This Map
+## ï¿½ï¿½ï¿½ How to Use This Map
 
 **For Onboarding New Team Members:**
 1. Start with "The Big Picture"
