@@ -28,7 +28,7 @@ GitHub Repository (Source of Truth)
 - **What**: GitOps deployment tool
 - **Where**: `argocd` namespace
 - **Purpose**: Automatically deploy changes from Git to Kubernetes
-- **Access**: http://10.1.5.186
+- **Access**: http://10.1.5.184
 - **Key Feature**: Watches Git repo, applies changes automatically
 
 #### 2. **Root Application (App-of-Apps)**
