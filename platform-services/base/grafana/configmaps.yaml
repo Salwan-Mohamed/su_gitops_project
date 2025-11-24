@@ -1,0 +1,126 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dora-dashboard
+  namespace: platform-monitoring
+  labels:
+    app: grafana
+    managed-by: gitops
+data:
+  dora-metrics.json: |
+    {
+      "title": "DORA Metrics - GitOps Platform",
+      "tags": ["dora", "devops", "gitops"],
+      "timezone": "browser",
+      "schemaVersion": 16,
+      "version": 1,
+      "refresh": "30s",
+      "panels": [
+        {
+          "id": 1,
+          "title": "Deployment Frequency (Last 24h)",
+          "type": "stat",
+          "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0},
+          "targets": [
+            {
+              "expr": "sum(increase(argocd_app_sync_total{phase=\"Succeeded\"}[24h]))",
+              "refId": "A"
+            }
+          ],
+          "options": {
+            "graphMode": "area",
+            "colorMode": "background"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"value": 0, "color": "red"},
+                  {"value": 1, "color": "yellow"},
+                  {"value": 7, "color": "green"}
+                ]
+              },
+              "unit": "short"
+            }
+          }
+        },
+        {
+          "id": 2,
+          "title": "Change Failure Rate",
+          "type": "stat",
+          "gridPos": {"h": 6, "w": 6, "x": 6, "y": 0},
+          "targets": [
+            {
+              "expr": "(sum(increase(argocd_app_sync_total{phase=\"Failed\"}[24h])) / sum(increase(argocd_app_sync_total[24h])) * 100) or vector(0)",
+              "refId": "A"
+            }
+          ],
+          "options": {
+            "graphMode": "area",
+            "colorMode": "background"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"value": 0, "color": "green"},
+                  {"value": 15, "color": "yellow"},
+                  {"value": 30, "color": "red"}
+                ]
+              },
+              "unit": "percent",
+              "max": 100,
+              "min": 0
+            }
+          }
+        },
+        {
+          "id": 3,
+          "title": "Applications by Sync Status",
+          "type": "piechart",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+          "targets": [
+            {
+              "expr": "count(argocd_app_info{sync_status=\"Synced\"})",
+              "legendFormat": "Synced",
+              "refId": "A"
+            },
+            {
+              "expr": "count(argocd_app_info{sync_status=\"OutOfSync\"})",
+              "legendFormat": "OutOfSync",
+              "refId": "B"
+            }
+          ],
+          "options": {
+            "legend": {"displayMode": "list", "placement": "right"},
+            "pieType": "pie"
+          }
+        },
+        {
+          "id": 4,
+          "title": "Deployment Frequency Over Time",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6},
+          "targets": [
+            {
+              "expr": "sum(rate(argocd_app_sync_total{phase=\"Succeeded\"}[1h])) * 3600",
+              "legendFormat": "Deployments/hour",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "fillOpacity": 20
+              }
+            }
+          }
+        }
+      ],
+      "time": {"from": "now-24h", "to": "now"},
+      "editable": true,
+      "uid": "dora-metrics-gitops"
+    }

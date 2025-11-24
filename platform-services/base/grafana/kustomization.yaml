@@ -5,6 +5,7 @@ namespace: platform-monitoring
 
 resources:
   - deployment.yaml
+  - configmaps.yaml
 
 commonLabels:
   managed-by: gitops
