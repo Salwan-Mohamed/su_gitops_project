@@ -6,7 +6,7 @@ metadata:
     app: sample-nginx
     managed-by: gitops
 spec:
-  replicas: 1  # Will be overridden per environment
+  replicas: 1
   selector:
     matchLabels:
       app: sample-nginx
@@ -21,8 +21,6 @@ spec:
         ports:
         - containerPort: 80
           name: http
-        - containerPort: 9113
-          name: metrics
         resources:
           requests:
             cpu: 50m
@@ -45,23 +43,6 @@ spec:
             port: 80
           initialDelaySeconds: 5
           periodSeconds: 5
-      
-      # Nginx Prometheus Exporter sidecar
-      - name: nginx-exporter
-        image: nginx/nginx-prometheus-exporter:0.11
-        args:
-          - -nginx.scrape-uri=http://localhost/stub_status
-        ports:
-        - containerPort: 9113
-          name: metrics
-        resources:
-          requests:
-            cpu: 10m
-            memory: 16Mi
-          limits:
-            cpu: 50m
-            memory: 64Mi
-      
       volumes:
       - name: html
         configMap:
