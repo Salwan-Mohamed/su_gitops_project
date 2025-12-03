@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: applications
+  namespace: argocd
+spec:
+  description: Application workloads across environments
+  
+  sourceRepos:
+    - 'https://github.com/Salwan-Mohamed/su_gitops_project.git'
+  
+  destinations:
+    - namespace: 'app-*'
+      server: https://kubernetes.default.svc
+    - namespace: app-dev
+      server: https://kubernetes.default.svc
+    - namespace: app-staging
+      server: https://kubernetes.default.svc
+    - namespace: app-production
+      server: https://kubernetes.default.svc
+  
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+  
+  namespaceResourceWhitelist:
+    - group: ''
+      kind: Service
+    - group: ''
+      kind: ConfigMap
+    - group: ''
+      kind: Secret
+    - group: apps
+      kind: Deployment
+    - group: apps
+      kind: StatefulSet
+    - group: apps
+      kind: DaemonSet
+    - group: networking.k8s.io
+      kind: Ingress
+    - group: monitoring.coreos.com
+      kind: ServiceMonitor
+    - group: monitoring.coreos.com
+      kind: PodMonitor
