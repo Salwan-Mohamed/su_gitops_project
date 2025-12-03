@@ -1,0 +1,66 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: app-dev
+
+bases:
+  - ../../base/sample-nginx
+
+commonLabels:
+  environment: dev
+
+replicas:
+  - name: sample-nginx
+    count: 1
+
+patches:
+  - target:
+      kind: ConfigMap
+      name: sample-nginx-html
+    patch: |-
+      - op: replace
+        path: /data/index.html
+        value: |
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>GitOps Platform - DEV Environment</title>
+              <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      margin: 40px;
+                      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                      color: white;
+                  }
+                  .container {
+                      max-width: 800px;
+                      margin: 0 auto;
+                      background: rgba(255,255,255,0.1);
+                      padding: 40px;
+                      border-radius: 10px;
+                      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                  }
+                  h1 { font-size: 2.5em; margin-bottom: 20px; }
+                  .env-badge {
+                      display: inline-block;
+                      background: #ef4444;
+                      padding: 5px 15px;
+                      border-radius: 20px;
+                      font-weight: bold;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>íº€ GitOps Platform</h1>
+                  <h2>Sample Application</h2>
+                  <div class="env-badge">í´§ DEV ENVIRONMENT</div>
+                  <p style="margin-top: 20px;">
+                      <strong>Status:</strong> âœ… Running<br>
+                      <strong>Replicas:</strong> 1 (Development)<br>
+                      <strong>Auto-Sync:</strong> Enabled<br>
+                      <strong>Purpose:</strong> Testing and development
+                  </p>
+              </div>
+          </body>
+          </html>

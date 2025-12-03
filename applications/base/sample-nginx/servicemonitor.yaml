@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: sample-nginx
+  labels:
+    app: sample-nginx
+    managed-by: gitops
+spec:
+  selector:
+    matchLabels:
+      app: sample-nginx
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
