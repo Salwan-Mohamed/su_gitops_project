@@ -8,6 +8,7 @@ resources:
   - platform-services.yaml
   - monitoring.yaml
   - grafana.yaml
+  - awx.yaml
 
 commonLabels:
   managed-by: gitops
