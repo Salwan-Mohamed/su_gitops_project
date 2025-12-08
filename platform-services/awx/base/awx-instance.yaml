@@ -1,0 +1,22 @@
+apiVersion: awx.ansible.com/v1beta1
+kind: AWX
+metadata:
+  name: awx
+  namespace: awx
+spec:
+  deployment_type: awx
+  service_type: LoadBalancer
+  loadbalancer_ip: 10.1.5.90
+
+  ingress_type: none
+
+  postgres_storage_class: nfs-client
+  postgres_storage_requirements:
+    requests:
+      storage: 20Gi
+
+  projects_storage_class: nfs-client
+  projects_storage_requirements:
+    requests:
+      storage: 10Gi
+
