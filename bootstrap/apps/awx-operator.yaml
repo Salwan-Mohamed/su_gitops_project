@@ -6,14 +6,11 @@ metadata:
 spec:
   project: platform-services
   source:
-    repoURL: https://github.com/ansible/awx-operator.git
+    repoURL: https://ansible.github.io/awx-operator/
+    chart: awx-operator
     targetRevision: 2.19.1
-    path: .helm/starter
     helm:
       releaseName: awx-operator
-      values: |
-        AWX:
-          enabled: false
   destination:
     server: https://kubernetes.default.svc
     namespace: awx
