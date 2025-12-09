@@ -1,19 +1,18 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
+apiVersion: v1
+kind: ServiceAccount
 metadata:
   name: awx-operator
-  namespace: argocd
-spec:
-  project: platform-services
-  source:
-    repoURL: https://github.com/ansible/awx-operator
-    path: deploy/helm/awx-operator
-    targetRevision: main
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: awx
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-
+  namespace: awx
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: awx-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: awx-operator
+  namespace: awx

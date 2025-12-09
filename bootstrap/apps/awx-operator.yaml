@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: awx-operator
+  namespace: argocd
+spec:
+  project: platform-services
+  source:
+    repoURL: https://github.com/ansible/awx-operator.git
+    targetRevision: 2.19.1
+    path: .helm/starter
+    helm:
+      releaseName: awx-operator
+      values: |
+        AWX:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: awx
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

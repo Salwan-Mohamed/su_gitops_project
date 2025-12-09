@@ -8,6 +8,10 @@ resources:
   - platform-services.yaml
   - monitoring.yaml
   - grafana.yaml
+  - sample-nginx-dev.yaml
+  - sample-nginx-staging.yaml
+  - sample-nginx-production.yaml
+  - awx-operator.yaml
   - awx.yaml
 
 commonLabels:

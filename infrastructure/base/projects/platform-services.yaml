@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform-services
+  namespace: argocd
+spec:
+  description: Platform services like AWX, monitoring, logging
+  
+  sourceRepos:
+    - 'https://github.com/Salwan-Mohamed/su_gitops_project.git'
+    - 'https://github.com/ansible/awx-operator.git'
+  
+  destinations:
+    - namespace: awx
+      server: https://kubernetes.default.svc
+    - namespace: platform-*
+      server: https://kubernetes.default.svc
+  
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
