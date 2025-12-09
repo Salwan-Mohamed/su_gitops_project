@@ -14,6 +14,8 @@ spec:
   destinations:
     - namespace: awx
       server: https://kubernetes.default.svc
+    - namespace: awx-operator
+      server: https://kubernetes.default.svc
     - namespace: platform-*
       server: https://kubernetes.default.svc
   
