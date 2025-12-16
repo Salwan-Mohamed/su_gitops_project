@@ -11,7 +11,7 @@ spec:
     path: config/default
   destination:
     server: https://kubernetes.default.svc
-    namespace: awx-operator
+    namespace: awx  # Changed from awx-operator to awx
   syncPolicy:
     automated:
       prune: true
