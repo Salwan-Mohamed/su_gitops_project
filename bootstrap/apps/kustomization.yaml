@@ -5,6 +5,10 @@ resources:
   - infrastructure.yaml
   - platform-services.yaml
   - grafana.yaml
+  - grafana-dashboards.yaml
   - kube-prometheus-stack.yaml
   - awx-operator.yaml
   - awx.yaml
+
+commonLabels:
+  managed-by: gitops

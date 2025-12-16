@@ -1,0 +1,64 @@
+# Grafana configuration
+replicas: 1
+
+persistence:
+  enabled: true
+  storageClassName: nfs-client
+  size: 10Gi
+
+# Dashboard provider configuration
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards/default
+    - name: 'kubernetes'
+      orgId: 1
+      folder: 'Kubernetes Infrastructure'
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards/kubernetes
+    - name: 'argocd'
+      orgId: 1
+      folder: 'ArgoCD'
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards/argocd
+
+# Dashboard ConfigMaps to mount
+dashboardsConfigMaps:
+  default: grafana-dashboards
+
+# Sidecar configuration to watch for dashboards
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    labelValue: "1"
+    folder: /var/lib/grafana/dashboards
+    searchNamespace: platform-monitoring
+    provider:
+      foldersFromFilesStructure: true
+
+# Data source configuration
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://kube-prometheus-stack-prometheus:9090
+      access: proxy
+      isDefault: true
+      editable: true
